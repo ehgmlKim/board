@@ -6,12 +6,14 @@ import com.example.board.dto.BoardUpdateDto;
 import com.example.board.entity.Board;
 import com.example.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 @RequestMapping("/board")
 public class BoardController {
 
@@ -20,12 +22,14 @@ public class BoardController {
     //전체 글 조회
     @GetMapping("")
     public List<BoardResponseDto> findAllBaord(){
+
         return boardService.findAllBaord();
     }
 
     // 글 등록
-    @PostMapping("/post")
+    @PostMapping("")
     public String save(@RequestBody BoardSaveDto saveDto) {
+
         return boardService.save(saveDto);
     }
 
@@ -39,11 +43,16 @@ public class BoardController {
     // 글 하나 조회
     @GetMapping("/{id}")
     public BoardResponseDto findById(@PathVariable Long id) {
-        return boardService.findById(id);
+        BoardResponseDto responseDto = boardService.findById(id);
+        int countVisit = responseDto.getCountVisit() +1;
+        responseDto.setCountVisit(countVisit);
+        boardService.updateVisit(id, countVisit);
+        return responseDto;
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {
+
         return boardService.delete(id);
     }
 

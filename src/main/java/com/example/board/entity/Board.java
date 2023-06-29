@@ -28,6 +28,7 @@ public class Board extends BaseEntity{
     }
 
     public void updateVisit(int countVisit) {
+
         this.countVisit = countVisit;
     }
 }

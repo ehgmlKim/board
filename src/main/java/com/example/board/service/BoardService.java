@@ -6,13 +6,18 @@ import com.example.board.dto.BoardUpdateDto;
 import com.example.board.entity.Board;
 import com.example.board.repository.BoardRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.stylesheets.LinkStyle;
 
+import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional
 public class BoardService {
     private final BoardRepository boardRepository;
 
@@ -29,6 +34,15 @@ public class BoardService {
 
         return id + " : 글이 수정되었습니다.";
     }
+    public void updateVisit(Long id, int count) {
+        Board board = boardRepository.findById(id).orElseThrow
+                (() -> new IllegalArgumentException("해당 게시글이 없습니다. id="+id));
+        log.info("조회수 증가 시작");
+        log.info("원래 조회수 : " + board.getCountVisit());
+        board.updateVisit(count);
+
+        log.info("결과 : " + board.getCountVisit());
+    }
 
     public String delete(Long id) {
         Board board = boardRepository.findById(id).orElseThrow
@@ -41,14 +55,20 @@ public class BoardService {
     public BoardResponseDto findById(Long id) {
         Board board = boardRepository.findById(id).orElseThrow
                 (() -> new IllegalArgumentException("해당 게시글이 없습니다. id="+id));
-        int countVisit = board.getCountVisit() + 1;
-
-        board.updateVisit(countVisit);
 
         return new BoardResponseDto(board);
     }
 
     public List<BoardResponseDto> findAllBaord() {
-        return boardRepository.findAllDesc();
+        try {
+            List<Board> boards = boardRepository.findAll();
+            List<BoardResponseDto> responseDtos = new ArrayList<>();
+            for(Board board : boards) {
+                responseDtos.add(new BoardResponseDto(board));
+            }
+            return responseDtos;
+        } catch (Exception e) {
+        }
+        return null;
     }
 }
